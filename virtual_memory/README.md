@@ -45,3 +45,9 @@ The mechanism that enables the virtual address space to be orders of magnitude l
 In this way, a page table can be thought of as a cache, whereby if the valid bit is set to $1$, it indicates that at the associated physical address mapping, there is data already loaded into memory ready to be accessed. If the valid bit is 0, the page is not currently in physical memory. A page fault occurs, and the operating system loads the page from disk into a physical frame before resuming execution. It is called a page hit when the data is already in memory.
 
 Also note that this virtual memory caching operates one level of abstraction away from L1-L3 caches. That is, when the CPU is attempting to access some data, it will first check if it is present in registers, then L1-L3 cache, then DRAM. However, as DRAM is virtual from the perspective of the program, it will check if the valid bit is set for the virtual address in question, and if not will fetch from disk. It is loads from disk via this caching mechanism that incur the most significant performance degradation.
+
+### TLB Cache
+
+A **translation lookaside buffer (TLB)** is a set associative cache used to speed up virtual memory address mapping in hardware. When the CPU attempts a virtual address read, the TLB is consulted before the L1 cache lookup. This is because the L1 cache uses physical addresses. The TLB stores page table entries (the address mapping, not the data within the physical page frame).
+
+By caching these address mappings, it saves clock cycles. This is because the page table itself is stored in DRAM. This means the hardware must conduct a search of the page table in DRAM to determine the address mapping. Placing a cache in between the CPU and DRAM enables hot data within the page table to sit closer to the processor, speeding up retrieval time and saving on computations.
