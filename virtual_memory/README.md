@@ -19,6 +19,7 @@ Consider the following parameters
 
 
 Let $N$ be the number of virtual addresses, $M$ be the number of physical addresses, $P$ be the page size.
+
 $$
 N = 2^n
 $$
