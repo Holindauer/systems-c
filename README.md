@@ -1,2 +1,3 @@
 # systems-c
-Notes on Systems Level C
+
+This repo contains notes and examples of systems level C concepts.
