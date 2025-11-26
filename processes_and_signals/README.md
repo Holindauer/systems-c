@@ -8,7 +8,9 @@ A child process is created by calling **fork()** from within a parent process. C
 
 When fork is called, the program execution bifurcates into a **process graph**. While the exact order of execution in such a graph is non deterministic, there are certain predictable behaviors. 
 
-For example, in the above function *fork2()*, the parent process is forked twice in succession. Before the final print statement "Bye" can be reached, two child processes must be spawned, so we know that at the very least, before "Bye" can be printed, we must see "L0" and "L1" in the terminal output.
+For example, in the above function *fork2()*, the parent process is forked twice in succession. Before the final print statement "Bye" can be reached, two child processes must be spawned, so we know that at the very least, before "Bye" can be printed, we must see "L0" and "L1" in the terminal output. 
+
+Calling **exit()** will terminate a process with the exit code passed in as an argument. 
 
 ![zombie_process](orphan_process.png)
 
@@ -19,4 +21,6 @@ In the above function *fork8*, the parent process terminates, but the child proc
 
 There are also **zombie processes**, which refers to when a parent process does not properly handle the exit codes of a child process after it terminates. A parent process must **reap** child processes after they exit else they will continue to occupy a process ID.
 
-The function *fork9* above prevents a zombie process by calling **wait()**, which frees the PID of the child processes from the parent process once it has completed.
+The function *fork9* above prevents a zombie process by calling wait(), which retrieves the child’s exit status and removes the child’s entry from the kernel’s process table. This frees the PID so it can be reused.
+
+As well, **execve()** can be used to load and run a process from a file. 
