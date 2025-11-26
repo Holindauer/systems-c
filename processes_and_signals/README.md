@@ -23,7 +23,7 @@ In the above function *fork8*, the parent process terminates, but the child proc
 
 There are also **zombie processes**, which refers to when a parent process does not properly handle the exit codes of a child process after it terminates. A parent process must **reap** child processes after they exit else they will continue to occupy a process ID.
 
-The function *fork9* above prevents a zombie process by calling wait(), which retrieves the child’s exit status and removes the child’s entry from the kernel’s process table. This frees the PID so it can be reused.
+The function *fork9* above prevents a zombie process by calling **wait()**, which retrieves the child’s exit status and removes the child’s entry from the kernel’s process table. This frees the PID so it can be reused.
 
 As well, **execve()** can be used to load and run a process from a file. 
 
