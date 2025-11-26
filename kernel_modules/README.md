@@ -14,9 +14,9 @@ Although kernel modules cannot use standard C library file I/O like user applica
 
 ![kernel_hello_world](kernel_hello_world.png)
 
-In the above kernel module, the **__init** and **__exit** typed functions are the constructor and destructor of this kernel module. When the *.ko* object file is inserted into the kernel, the *__init* function executes. Afterwards, the kernel acts asynconously. When the kernel is removed, the *__exit* function executes. Calls to **pr_info** write messages to the ring buffer.
+In the above kernel module, the functions marked with **__init** and **__exit** use special kernel attributes indicating the module's constructor and destructor. When the *.ko* object file is inserted into the kernel, the *__init* function executes. Afterwards, the kernel acts asynconously. When the kernel is removed, the *__exit* function executes. Calls to **pr_info** write messages to the ring buffer.
 
-To interact with the kernel from user space, the **/proc** file system is used. Files stored in **/proc** are virtual, meaning that they do not store large amounts of data. Rather, they are temporary buffers used to allow user/kernel transmission of bytes. Kernel modules may often recieve data written to buffers in */proc* and then go on to store them in memory. For example, say a kernel module creates **/proc/procfile** on insertion into the kernel. Calling **echo "data" > /proc/procfile** will write "data" into the virtual procfile in the proc directory. To read data out of */proc/procfile*, you can then call **cat /proc/procfile**.
+To interact with the kernel from user space, the **/proc** file system is used. Files in **/proc** are virtual and do not store any data themselves. Instead, every read or write operation triggers callback functions defined by the kernel module, which dynamically generate or consume the data at access time. Kernel modules may choose to store received data in their own memory, but /proc itself does not hold buffers. For example, say a kernel module creates **/proc/procfile** on insertion into the kernel. Calling **echo "data" > /proc/procfile** will write "data" into the virtual procfile in the proc directory. To read data out of */proc/procfile*, you can then call **cat /proc/procfile**.
 
 
 ![async_proc_handlers](async_proc_handlers.png)
