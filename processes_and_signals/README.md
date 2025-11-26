@@ -29,7 +29,7 @@ As well, **execve()** can be used to load and run a process from a file.
 
 ### Signals
 
-Signals are messages accessible to processes about systems-level events. They are asynchronous notifications sent to a process to inform it of events. Signals are sent from the kernel to a target process at the request of other processes.
+Signals are messages accessible to processes about system-level events. They are asynchronous notifications sent to a process to inform it of events. Signals are sent from the kernel to a target process at the request of other processes.
 
 For example, when a user interrupts a process from the terminal with **ctrl-c**, it sends the **SIGINT** signal to the process running in the terminal. The only information sent is the ID of **SIGINT**, which is 2. Specific signals have default actions associated with them, in this case, it is to terminate the process.
 
