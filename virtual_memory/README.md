@@ -51,3 +51,74 @@ Also note that this virtual memory caching operates one level of abstraction awa
 A **translation lookaside buffer (TLB)** is a set associative cache used to speed up virtual memory address mapping in hardware. When the CPU attempts a virtual address read, the TLB is consulted before the L1 cache lookup. This is because the L1 cache uses physical addresses. The TLB stores page table entries (the address mapping, not the data within the physical page frame).
 
 By caching these address mappings, it saves clock cycles. This is because the page table itself is stored in DRAM. This means the hardware must conduct a search of the page table in DRAM to determine the address mapping. Placing a cache in between the CPU and DRAM enables hot data within the page table to sit closer to the processor, speeding up retrieval time and saving on computations.
+
+# Virtual Address Translation Example
+
+Consider the case of $14$ bit VA, $12$ bit PA, and $64$ byte page size with a $4$-way set associative TLB cache with $16$ total elements, as well as a direct mapped L1 cache with 16 lines and 4-byte block size.
+
+Say we have the virtual address
+
+    00011110101001
+
+The virtual address is broken up into VPN and VPO. The page size is 64 bytes = $1 << 6$. This means we need 6 bits to represent the VPO. This is because there are $1 << 6$ values within the memory block a page table maps to, and we must be able to offset our index to represent each one. The VPN, our index into the page table, is the remaining $14-6=8$ bits.
+
+The VPO is the least significant $6$ bits. The VPN is the remaining prefix.
+
+    00011110 101001
+    VPN      VPO
+
+Immediately we know the VPO is the same as the PPO.
+
+    101001
+    PPO
+
+Since PA are $12$ bits, and the PPO takes up $6$ of those bits already, the PPN will be $6$ bits too. 
+
+
+    ______ 101001
+    PPN    PPO
+
+
+
+The exact value of the PPN cannot itself be determined by just the VA since it will depend on the exact location of where that data is currently living on the system. 
+
+To determine what that value is, the TLB is consulted first, before the page table. The reason is because the TLB is cache implemented in hardware, whereas the page table is a kernel data structure that lives in DRAM. Accessing DRAM is higher in the memory heirarcy.
+
+First, we observe that the TLB is a $4$-way set associative cache with $16$ total elements. This means that there are $4$ elements per set. And for the total elements of the TLB to be $16$, there must be $4$ sets to achieve $16 = 4 * 4$ total elements.
+
+The TLB takes as input the 8 bit VPN. Since we have $1 << 2$ sets, the least significant $2$ bits of the VPN refer to the TLB Index (TLBI). The remaining $6$ bit prefix is the TLB tag (TLBT).
+
+    00011110 
+    VPN     
+
+    000111 10 
+    TLBT   TLBI 
+
+The TLBI is used to index the which set. If there is a valid tag within that set, then the value stored within the cache is the PPN of the physical address. Note that we already have the PPO. 
+
+For the sake of example, lets say the TLB produced a cache hit, and retrieve the PPN
+
+    010101
+    PPN
+
+In this case, we assemble the full $12$ bit PA
+
+    010101 101001
+    PPN    PPO
+
+    010101101001
+    PA
+
+
+Now that we have the PA, we move on to access physical memory. Since we have an L1 cache, we will consult the cache first, then DRAM. Note that disk is only involved on a page fault (when the valid bit in the page table is 0), not on an L1 cache miss. 
+
+The L1 cache is direct mapped with $16$ lines and a $4$-byte block size. This means we are dealing with a cache with only $1$ line per set. Since there are $16$ total lines, there are $16$ sets. This means we need $log(16)=4$ bits forming our set index. And since each line has a $4$ byte block size, we must also have $log(4)=2$ bits for our block offset. The remaining $6$ bits form the tag.
+
+
+    010101101001
+    PA
+
+    010101 1010      01
+    tag    set_index block_offset
+
+The L1 cache will first index into the sets using the set_index. If the line in that set has a matching tag, it will index into the line with the block_offset and retrived the data associated with the original VA. Otherwise, the data at that line will be evicted and accessed from DRAM.
