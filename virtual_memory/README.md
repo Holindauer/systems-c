@@ -34,7 +34,7 @@ $$
 
 Programs that access virtual memory do so via **virtual addresses**. The bits of a virtual address are split into a **virtual page number (VPN)** and a **virtual page offset (VPO)**.
 
-![page_table](page_table.png)
+![page_table](../photos/page_table.png)
 
 The overall virtual address takes up $n$ bits. Whereby the VPN occupies the most significant $n-p$ bits. The VPO occupies the least significant $p$ bits.
 
