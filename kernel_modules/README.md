@@ -12,22 +12,22 @@ To see the available kernel modules on a linux machine, you can run **lsmod**. I
 
 Although kernel modules cannot use standard C library file I/O like user applications, the kernel and user software are able to communicate in select ways. For example, when debugging, there is no *printf* function that can log results to the terminal. Rather, the kernel can write logs to the **ring buffer**, which is a byte buffer that can be written to by the kernel and read by user applications. When a kernel module writes to the ring buffer, user applications can view the logs with **dmesg**, which will print the output to terminal. 
 
-![kernel_hello_world](kernel_hello_world.png)
+![kernel_hello_world](../photos/kernel_hello_world.png)
 
 In the above kernel module, the functions marked with **__init** and **__exit** use special kernel attributes indicating the module's constructor and destructor. When the *.ko* object file is inserted into the kernel, the *__init* function executes. Afterwards, the kernel acts asynconously. When the kernel is removed, the *__exit* function executes. Calls to **pr_info** write messages to the ring buffer.
 
 To interact with the kernel from user space, the **/proc** file system is used. Files in **/proc** are virtual and do not store any data themselves. Instead, every read or write operation triggers callback functions defined by the kernel module, which dynamically generate or consume the data at access time. Kernel modules may choose to store received data in their own memory, but /proc itself does not hold buffers. For example, say a kernel module creates **/proc/procfile** on insertion into the kernel. Calling **echo "data" > /proc/procfile** will write "data" into the virtual procfile in the proc directory. To read data out of */proc/procfile*, you can then call **cat /proc/procfile**.
 
 
-![async_proc_handlers](async_proc_handlers.png)
+![async_proc_handlers](../photos/async_proc_handlers.png)
 
 It should be noted that what exactly a kernel module does when data is written to or read from files in /proc files depends on the module. Kernel modules define asynchonous handler functions for these interactions. The above struct defines the asynchronous handlers for reads and writes to some /proc file.
 
-![procfile_read](procfile_read.png)
+![procfile_read](../photos/procfile_read.png)
 
 
  To transfer data to/from the userspace to kernel, the module must call **copy_to_user()** or **copy_from_user()** to fasciliate the transaction. The reason for this intermediary between kernel memory and user memory is to prevent use space from directly accessing privleged memory regiouns of the device.
 
-![procfile_write](procfile_write.png)
+![procfile_write](../photos/procfile_write.png)
 
 Once data is in the kernels memory, there are certain functionalities provided by the kernel that can make programming modules easier. For example, linked lists, spin locks, timers, etc...
