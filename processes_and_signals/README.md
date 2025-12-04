@@ -44,3 +44,27 @@ In the above example, the **kill()** function is used to send the SIGINT signal 
 Signals have default actions taken when receiving particular signals. However, it is also possible to overwrite signal handlers for application specific uses. For example, in the *fork12()* function above, the *sigint_handler* is installed to handle the *SIGINT* signal on arrival. Then, *pause()* waits for the next signal before continuing execution.
 
 Also note that signal handlers can interrupt other signal handlers.
+
+
+# Stride Scheduling Example
+
+Let the kernel employ a stride scheduling routine for concurrent process scheduling. At each step, run the process with the smallest pass, after it runs, increment its pass by its stride. On ties, pick the lowest PID. The stride is determined by the ticket allocation: stride = L / tickets for some constant L (e.g., L = 10,000 so tickets 100→stride 100, 50→200, 250→40).
+
+Say we have 3 processes with PID 1, 2, 3 with the following strides and tickets. Assume their initial pass is set to 0.
+
+| Process | Tickets | Stride |
+| -- | -- | -- |
+| 1 | 100 | 100
+| 2 | 50 | 200 
+| 3 | 250 | 40
+
+| EventID | pass PID=1 | pass PID=2 | pass PID=3 | Selected Process
+| -- | -- | -- | -- | -- | 
+| 1 | 0 | 0 | 0 | 1
+| 2 | 100 | 0 | 0 | 2
+| 3 | 100 | 200 | 0 | 3
+| 4 | 100 | 200 | 40 | 3
+| 5 | 100 | 200 | 80 | 3
+| 6 | 100 | 200 | 120 | 1
+| 7 | 200 | 200 | 120 | 3
+| 8 | 200 | 200 | 160 | 3
